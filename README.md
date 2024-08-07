@@ -45,10 +45,6 @@ options:
                         (Optional) Do not download attachments
 ```
                        
-```bash
-python Asana_backup.py --token 'YOUR_ASANA_ACCESS_TOKEN' --output-dir Asana_data --project-id 'YOUR_PROJECT_ID'
-
-```
 ## Output
 The script creates a directory (default **asana_project_data**) containing:
 - A CSV file (**project_data.csv**) with task details.
