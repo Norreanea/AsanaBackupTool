@@ -25,6 +25,10 @@ This script automates the process of backing up tasks, comments, and attachments
     ```bash
     pip install requests
     ```
+## Arguments
+--token: (Required) Your Asana access token.
+--project-id: (Required) The ID of your Asana project.
+--output-dir: (Optional) The directory to save the downloaded data. Default is asana_project_data.
 
 ## Usage
 
