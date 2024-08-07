@@ -28,7 +28,8 @@ This script automates the process of backing up tasks, comments, and attachments
 
 ## Usage
 Run the script with the required Asana access token, project ID, and optional output directory:
-```python Asana_backup.py --help```
+
+```python Asana_backup.py --help
 usage: Asana_backup.py [-h] --token TOKEN [--output-dir OUTPUT_DIR] --project-id PROJECT_ID [--without-attachments]
 
 Asana Backup Script
@@ -42,7 +43,8 @@ options:
                         (Required) ID of the Asana project to back up
   --without-attachments
                         (Optional) Do not download attachments
-                        
+```
+                       
 ```bash
 python Asana_backup.py --token 'YOUR_ASANA_ACCESS_TOKEN' --output-dir Asana_data --project-id 'YOUR_PROJECT_ID'
 
