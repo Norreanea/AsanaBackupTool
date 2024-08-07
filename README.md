@@ -40,7 +40,7 @@ Run the script with the required Asana access token, project ID, and optional ou
 python Asana_backup.py --token 'YOUR_ASANA_ACCESS_TOKEN' --output-dir Asana_data --project-id 'YOUR_PROJECT_ID'
 
 ```
-## Example Output
+## Output
 The script creates a directory (default **asana_project_data**) containing:
 - A CSV file (**project_data.csv**) with task details.
 - The **attachments** folder containing all files in their respective task folders, saved with unique file names.
