@@ -26,18 +26,53 @@ This script automates the process of backing up tasks, comments, and attachments
     pip install requests
     ```
 ## Arguments
-- --token: (Required) Your Asana access token.
-- --project-id: (Required) The ID of your Asana project.
-- --output-dir: (Optional) The directory to save the downloaded data. Default is asana_project_data.
+- `--token`: (Required) Your Asana Access Token.
+- `--output-dir`: (Optional) Directory where the output will be saved. Default is `asana_project_data`.
+- `--project-id`: (Required) ID of the Asana project to back up.
 
 Please make sure your Asana access token has the necessary permissions to read the project data.
 
 
 ## Usage
-
 Run the script with the required Asana access token, project ID, and optional output directory:
 
 ```bash
-python Asana_backup_new_new.py --token your_access_token --project-id your_project_id --output-dir your_output_directory
+python Asana_backup.py --token 'YOUR_ASANA_ACCESS_TOKEN' --output-dir Asana_data --project-id 'YOUR_PROJECT_ID'
+
 ```
-AsanaBackupTool is licensed under the MIT License. 
+## Example Output
+The script creates a directory (default asana_project_data) containing:
+- A CSV file (project_data.csv) with task details.
+- An attachments folder containing all task attachments, saved with unique filenames.
+
+_____________________________________________________________________________________
+# Obtaining Asana Project ID and Access Token
+
+To integrate with Asana's API, you'll need to obtain your Project ID and an Access Token. Follow the steps below to retrieve these details.
+
+## Step 1: Log in to Asana Account
+
+## Step 2: Find Your Project ID
+1. **Navigate to the project for which you want the ID.**
+2. **Look at the URL in your browser's address bar.** It should look something like this:
+   ```https://app.asana.com/0/{workspace_id}/{project_id}```
+3. **Copy your project_id**
+
+## Step 3: Generate a Personal Access Token
+1. **Go to the Asana Developer Console:**
+   - Navigate to [Asana Developer Console](https://app.asana.com/0/developer-console).
+2. **Create a new Personal Access Token:**
+   - Click on "Create new token".
+   - Give your token a name, for example "My Project Integration".
+   - Click "Create Token".
+3. **Copy your Personal Access Token:**
+   - Once the token is generated, copy it immediately. **You won’t be able to see it again**. 
+   - Store it in a secure place.
+___________________________________________________________________________________
+
+## Contributing
+Feel free to open issues or submit pull requests for any improvements or bug fixes.
+
+## License
+This project is licensed under the MIT License.  
+
