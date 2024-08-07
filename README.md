@@ -31,7 +31,7 @@ This script automates the process of backing up tasks, comments, and attachments
 - --output-dir: (Optional) The directory to save the downloaded data. Default is asana_project_data.
 
 Please make sure your Asana access token has the necessary permissions to read the project data.
-AsanaBackupTool is licensed under the MIT License. 
+
 
 ## Usage
 
@@ -39,3 +39,5 @@ Run the script with the required Asana access token, project ID, and optional ou
 
 ```bash
 python Asana_backup_new_new.py --token your_access_token --project-id your_project_id --output-dir your_output_directory
+
+AsanaBackupTool is licensed under the MIT License. 
