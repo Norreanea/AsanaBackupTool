@@ -5,44 +5,57 @@ from urllib.parse import unquote
 import argparse
 
 
+# Function to parse command-line arguments
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Asana Backup Script")
     parser.add_argument('--token', type=str, required=True, help='(Required) Your Asana Access Token')
     parser.add_argument('--project-id', type=str, required=True, help='(Required) ID of the Asana project to back up')
-    parser.add_argument('--output-dir', type=str, default='asana_project_data', help='(Optional) Directory where the output will be saved. Default is `asana_project_data`')
+    parser.add_argument(
+        '--output-dir', type=str, default='asana_project_data',
+        help='(Optional) Directory where the output will be saved. Default is `asana_project_data`'
+    )
     parser.add_argument('--without-attachments', action='store_true', help='(Optional) Do not download attachments')
     return parser.parse_args()
 
 
+# Parse the arguments and set the constants
 args = parse_arguments()
 ASANA_ACCESS_TOKEN = args.token
 OUTPUT_DIR = args.output_dir
 PROJECT_ID = args.project_id
 WITHOUT_ATTACHMENTS = args.without_attachments
 
+# Headers for Asana API
 headers = {
     'Authorization': f'Bearer {ASANA_ACCESS_TOKEN}'
 }
 
 
+# Function to fetch tasks from a project
 def fetch_tasks(project_id):
-    url = (f'https://app.asana.com/api/1.0/projects/{project_id}/tasks?opt_fields=gid,name,assignee_status,completed,'
-           'created_at,due_on,assignee,subtasks')
+    url = (
+        f'https://app.asana.com/api/1.0/projects/{project_id}/tasks?opt_fields=gid,name,assignee_status,completed,'
+        'created_at,due_on,assignee,subtasks'
+    )
     response = requests.get(url, headers=headers)
     response.raise_for_status()
     print("Fetched tasks.")
     return response.json()['data']
 
 
+# Function to fetch details of a specific task
 def fetch_task_details(task_id):
-    url = (f'https://app.asana.com/api/1.0/tasks/{task_id}?opt_fields=gid,name,assignee,assignee_status,completed,'
-           'created_at,due_on,notes,followers,projects,resource_subtype,start_on,tags,subtasks')
+    url = (
+        f'https://app.asana.com/api/1.0/tasks/{task_id}?opt_fields=gid,name,assignee,assignee_status,completed,'
+        'created_at,due_on,notes,followers,projects,resource_subtype,start_on,tags,subtasks'
+    )
     response = requests.get(url, headers=headers)
     response.raise_for_status()
     print(f"Fetched details for task {task_id}.")
     return response.json()['data']
 
 
+# Function to fetch stories (comments) of a task
 def fetch_task_stories(task_id):
     url = f'https://app.asana.com/api/1.0/tasks/{task_id}/stories'
     response = requests.get(url, headers=headers)
@@ -51,6 +64,7 @@ def fetch_task_stories(task_id):
     return response.json()['data']
 
 
+# Function to fetch attachments of a task
 def fetch_task_attachments(task_id):
     url = f'https://app.asana.com/api/1.0/tasks/{task_id}/attachments?opt_fields=gid,name,download_url'
     response = requests.get(url, headers=headers)
@@ -59,6 +73,7 @@ def fetch_task_attachments(task_id):
     return response.json()['data']
 
 
+# Function to extract filename from Content-Disposition header
 def extract_filename(content_disposition):
     if 'filename*=' in content_disposition:
         filename = content_disposition.split("filename*=")[1]
@@ -71,6 +86,7 @@ def extract_filename(content_disposition):
     return filename
 
 
+# Function to truncate filename if it's too long
 def truncate_filename(filename, max_length=255):
     if len(filename) > max_length:
         filename, extension = os.path.splitext(filename)
@@ -78,6 +94,7 @@ def truncate_filename(filename, max_length=255):
     return filename
 
 
+# Function to generate a unique filename if a file already exists
 def generate_unique_filename(filename, task_folder):
     base_name, extension = os.path.splitext(filename)
     counter = 1
@@ -88,6 +105,7 @@ def generate_unique_filename(filename, task_folder):
     return unique_filename
 
 
+# Function to download an attachment
 def download_attachment(attachment, task_name):
     download_url = attachment.get('download_url')
 
@@ -128,4 +146,71 @@ def download_attachment(attachment, task_name):
         print(f"Failed to download attachment {attachment['name']} for task {task_name}. URL: {download_url}. Error: {e}")
         with open("debug_response.html", 'wb') as debug_file:
             debug_file.write(response.content)
-        pr
+        print("Saved debug response to 'debug_response.html'")
+
+
+# Function to preprocess task details to handle missing attributes
+def preprocess_task_details(task_details):
+    if 'assignee' not in task_details or task_details['assignee'] is None:
+        task_details['assignee'] = {'name': 'Unassigned'}
+    elif 'name' not in task_details['assignee']:
+        task_details['assignee']['name'] = 'Unassigned'
+
+    task_details['name'] = task_details.get('name', 'No Name')
+    task_details['completed'] = task_details.get('completed', False)
+    task_details['created_at'] = task_details.get('created_at', 'Unknown')
+    task_details['due_on'] = task_details.get('due_on', 'Unknown')
+    task_details['subtasks'] = task_details.get('subtasks', [])
+    return task_details
+
+
+# Function to save tasks data to a CSV file
+def save_data_to_csv(tasks_data):
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    csv_file = os.path.join(OUTPUT_DIR, 'project_data.csv')
+    with open(csv_file, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Task ID', 'Task Name', 'Assignee', 'Status', 'Created At', 'Due On', 'Comments',
+                         'Attachments', 'Subtasks'])
+
+        for task in tasks_data:
+            task_details = preprocess_task_details(task['details'])
+            comments = '\n'.join([comment.get('text', 'No Comment') for comment in task['comments']])
+            attachments = '\n'.join([attachment.get('name', 'Unnamed Attachment') for attachment in task['attachments']])
+            subtasks = '\n'.join([subtask.get('name', 'Unnamed Subtask') for subtask in task_details['subtasks']])
+
+            assignee_name = task_details['assignee']['name']
+            writer.writerow([task_details['gid'], task_details['name'], assignee_name, task_details['completed'],
+                             task_details['created_at'], task_details['due_on'], comments, attachments, subtasks])
+    print("Saved data to CSV.")
+
+
+# Main function to orchestrate fetching and saving tasks data
+def main():
+    tasks = fetch_tasks(PROJECT_ID)
+    all_data = []
+
+    for task in tasks:
+        task_id = task['gid']
+        task_details = fetch_task_details(task_id)
+        task_stories = fetch_task_stories(task_id)
+        task_attachments = fetch_task_attachments(task_id)
+
+        if not WITHOUT_ATTACHMENTS:
+            for attachment in task_attachments:
+                download_attachment(attachment, task_details['name'])
+
+        task_data = {
+            'details': task_details,
+            'comments': task_stories,
+            'attachments': task_attachments
+        }
+
+        all_data.append(task_data)
+
+    save_data_to_csv(all_data)
+    print(f"Data has been saved to the '{OUTPUT_DIR}' directory.")
+
+
+if __name__ == "__main__":
+    main()
