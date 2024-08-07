@@ -1,15 +1,12 @@
 import pytest
 from unittest.mock import patch, MagicMock
-import requests
 
 from Asana_backup import (
-    parse_arguments,
     fetch_tasks,
     fetch_task_details,
     fetch_task_stories,
     fetch_task_attachments,
-    preprocess_task_details,
-    save_data_to_csv
+    preprocess_task_details
 )
 
 
