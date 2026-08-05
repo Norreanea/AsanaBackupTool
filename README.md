@@ -31,7 +31,7 @@ Run the script with the required Asana access token, project ID, and optional ou
 
 ```
 python Asana_backup.py --help
-usage: Asana_backup.py [-h] --token TOKEN --project-id PROJECT_ID [--output-dir OUTPUT_DIR] [--without-attachments]
+usage: python Asana_backup.py [-h] --token TOKEN --project-id PROJECT_ID [--output-dir OUTPUT_DIR] [--without-attachments]
 
 Asana Backup Script
 
@@ -61,8 +61,8 @@ To integrate with Asana's API, you'll need to obtain your Project ID and an Acce
 ## Step 2: Find Your Project ID
 1. **Navigate to the project for which you want the ID.**
 2. **Look at the URL in your browser's address bar.** It should look something like this:
-   ```https://app.asana.com/0/{workspace_id}/{project_id}```
-3. **Copy your project_id**
+   ```https://app.asana.com/1/{workspace_id}/project/{project_id}```
+4. **Copy your project_id**
 
 ## Step 3: Generate a Personal Access Token
 1. **Go to the Asana Developer Console:**
